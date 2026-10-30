@@ -19,6 +19,8 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+- [Security] **Bandit 1.14.1 and phoenix_html 4.4.0.** Bandit 1.13.1 let HTTP/2 requests built for it eat memory (EEF-CVE-2026-116078 and friends); phoenix_html 4.3.0 picked up a medium advisory (EEF-CVE-2026-117645). Both closed.
+
 ## [0.3.6] - 2026-10-22
 
 - [Fix] **Ascella no longer quits on its own after a while.** On a Mac it checks every few seconds whether each app is running, by asking `pgrep`. When the system briefly refused to start that `pgrep`, the failure travelled back into the checking process and killed it; it restarted, checked, died again, and after a few rounds of that Ascella shut itself down, leaving a crash dump as its note. A command that cannot be started now counts as a failed answer: the app is shown as not running until the next look, and Ascella stays up.
