@@ -70,10 +70,13 @@ port() {
     echo "${value:-4090}"
 }
 
+# /favicon.svg, not /: the page answers 403 to anything without the key
+# (Ascella.Access), and curl -f calls that a failure. The icon is outside the
+# gate and answers 200 once the server is up.
 answers() {
     tries=0
     while [ "$tries" -lt 45 ]; do
-        if curl -fsS -o /dev/null --max-time 3 "http://127.0.0.1:$(port)/" 2>/dev/null; then
+        if curl -fsS -o /dev/null --max-time 3 "http://127.0.0.1:$(port)/favicon.svg" 2>/dev/null; then
             return 0
         fi
         systemctl is-failed --quiet "$SERVICE" && return 1

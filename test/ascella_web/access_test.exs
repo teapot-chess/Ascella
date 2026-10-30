@@ -41,6 +41,10 @@ defmodule AscellaWeb.AccessTest do
     end
   end
 
+  test "the icon stays open, for the updater's \"did it start\" check", %{conn: conn} do
+    assert conn |> get("/favicon.svg") |> response(200)
+  end
+
   test "without the key every page is a 403, and says how to get in", %{conn: conn} do
     for path <- ["/", "/help", "/remove-ascella"] do
       conn = get(conn, path)

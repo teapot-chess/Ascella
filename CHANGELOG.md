@@ -19,6 +19,7 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+- [Fix] **The Linux self-update no longer rolls itself back.** Its "did the new version start" check asked for `/`, which the page key answers with a 403, so `curl -f` called every healthy start a failure and the update went back to the old version after 90 seconds. It now asks for the icon, which is outside the key and answers 200.
 - [Security] **Bandit 1.14.1 and phoenix_html 4.4.0.** Bandit 1.13.1 let HTTP/2 requests built for it eat memory (EEF-CVE-2026-116078 and friends); phoenix_html 4.3.0 picked up a medium advisory (EEF-CVE-2026-117645). Both closed.
 
 ## [0.3.6] - 2026-10-22

@@ -495,6 +495,12 @@ defmodule Ascella.ReleaseFilesTest do
     end
   end
 
+  test "the Linux updater asks an address the key does not guard" do
+    script = read("rel/linux/update.sh")
+    assert script =~ ~s|--max-time 3 "http://127.0.0.1:$(port)/favicon.svg"|
+    refute script =~ ~s|127.0.0.1:$(port)/"|
+  end
+
   describe "the Mac app can update itself" do
     test "launcher.sh hands the app's pid to the server, which signals it on an update" do
       assert read("rel/macos/launcher.sh") =~ ~s(export ASCELLA_LAUNCHER_PID="$PPID")
