@@ -90,8 +90,8 @@
       "accent": ["#1f4f8a", "#8fb8ec"],
       "port": null,
       "blurb": {
-        "en": "The print station: pairings and standings on paper.",
-        "nl": "Het printstation: paringen en standen op papier."
+        "en": "The print station: pairings, standings, player lists and result slips on paper.",
+        "nl": "Het printstation: paringen, standen, spelerslijsten en uitslagstrookjes op papier."
       }
     },
     {
@@ -104,8 +104,8 @@
       "accent": ["#94600a", "#f0c46a"],
       "port": null,
       "blurb": {
-        "en": "The hall announcer: rounds, clocks and calls.",
-        "nl": "De zaalomroeper: rondes, klokken en mededelingen."
+        "en": "The hall announcer: rounds, countdowns and calls.",
+        "nl": "De zaalomroeper: rondes, aftellingen en mededelingen."
       }
     }
   ]
