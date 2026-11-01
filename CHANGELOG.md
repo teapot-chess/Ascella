@@ -19,6 +19,8 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+- [Change] **All rights reserved.** The Apache License 2.0 was a generous document for a program that has decided to keep its own counsel. LICENSE is now a short all-rights-reserved notice, and the README and NOTICE agree. Releases already published under the Apache licence keep it, since a licence granted cannot be taken back; the new terms apply from here on.
+
 ## [0.4.0] - 2026-11-01
 
 - [Change] **The hall programs' one-line descriptions say what they now do.** Polis was advertised as printing standings, which it did not, and has since been made honest by learning to: it prints pairings, standings, player lists and result slips. Nunki's "clocks" are called countdowns, and its "calls" now exist as announcements you can type or pick. The catalogue and its Dutch follow.

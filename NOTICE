@@ -1,14 +1,12 @@
 Ascella
-Copyright 2026 Jorian Burssens
-
-This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+Copyright (c) 2026 teapot-chess. All rights reserved; see LICENSE.
 
 The release machinery - rel/ (the Windows launcher and installer script, the
 Linux installer, updater and systemd units, the macOS app and its build
 scripts), .github/workflows, tools/release_notes.sh and the launcher details
 endpoint (lib/ascella/launcher_details*, lib/ascella_web/plugs/
 launcher_stats.ex) - came from Alnasl (https://github.com/teapot-chess/Alnasl),
-by the same author and under the same licence. Changes: the names
+by the same owner. Changes: the names
 (Alnasl -> Ascella), the port, the parts that only make sense for a program
 that reads boards over a serial port or keeps a database, and on Linux the
 service, which runs as root here because installing other programs is its
