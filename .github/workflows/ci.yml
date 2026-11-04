@@ -23,7 +23,7 @@ jobs:
     name: Build and test
     # Named, not `ubuntu-latest`: that label moves, and it should move here
     # when somebody decides it does.
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Linux, X64, teapot-vm]
 
     steps:
       # Actions are pinned to a commit, not to a tag: a tag can be moved, and
