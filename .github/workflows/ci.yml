@@ -43,8 +43,8 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-otp29.0-ex1.20-${{ hashFiles('mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-otp29.0-ex1.20-
+          key: ${{ runner.environment }}-${{ runner.os }}-mix-otp29.0-ex1.20-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.environment }}-${{ runner.os }}-mix-otp29.0-ex1.20-
 
       # --check-locked: a constraint edited in mix.exs without the lock file
       # would otherwise be resolved here, silently, into a set of
