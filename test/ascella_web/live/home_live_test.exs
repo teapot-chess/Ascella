@@ -49,12 +49,11 @@ defmodule AscellaWeb.HomeLiveTest do
 
     Apps.subscribe()
     {:ok, view, _html} = live(conn, ~p"/")
-    Apps.check_now()
-    assert_receive :apps_changed, 5_000
+    await_check(view)
     assert view |> element("#latest-hallapp") |> render() =~ "2.0.0"
 
     view |> element("#install-hallapp") |> render_click()
-    wait_until_idle("hallapp")
+    wait_until_idle(view, "hallapp")
 
     assert view |> element("#installed-hallapp") |> render() =~ "2.0.0"
     assert has_element?(view, "#start-hallapp")
@@ -83,10 +82,9 @@ defmodule AscellaWeb.HomeLiveTest do
 
     Apps.subscribe()
     {:ok, view, _html} = live(conn, ~p"/")
-    Apps.check_now()
-    assert_receive :apps_changed, 5_000
+    await_check(view)
     view |> element("#install-hallapp") |> render_click()
-    wait_until_idle("hallapp")
+    wait_until_idle(view, "hallapp")
 
     assert has_element?(view, "#offer-hallapp")
     view |> element("#offer-yes-hallapp") |> render_click()
@@ -104,7 +102,7 @@ defmodule AscellaWeb.HomeLiveTest do
     view |> element("#remove-hallapp") |> render_click()
     assert has_element?(view, "#remove-panel-hallapp")
     view |> form("#remove-form-hallapp") |> render_submit()
-    wait_until_idle("hallapp")
+    wait_until_idle(view, "hallapp")
 
     assert has_element?(view, "#install-hallapp")
     refute File.exists?(Path.join(ctx.start_menu, "Hallapp.lnk"))
@@ -120,10 +118,9 @@ defmodule AscellaWeb.HomeLiveTest do
 
     Apps.subscribe()
     {:ok, view, _html} = live(conn, ~p"/")
-    Apps.check_now()
-    assert_receive :apps_changed, 5_000
+    await_check(view)
     view |> element("#install-hallapp") |> render_click()
-    wait_until_idle("hallapp")
+    wait_until_idle(view, "hallapp")
 
     data = Path.join(ctx.local_app_data, "HallappData")
     File.mkdir_p!(data)
@@ -136,7 +133,7 @@ defmodule AscellaWeb.HomeLiveTest do
     assert has_element?(view, "#remove-data-yes-hallapp")
 
     view |> element("#remove-data-yes-hallapp") |> render_click()
-    wait_until_idle("hallapp")
+    wait_until_idle(view, "hallapp")
     refute File.exists?(data)
   end
 
@@ -145,11 +142,34 @@ defmodule AscellaWeb.HomeLiveTest do
     for id <- ~w(remove-windows remove-macos remove-linux), do: assert(html =~ ~s(id="#{id}"))
   end
 
-  defp wait_until_idle(id, tries \\ 50) do
+  # Asks GitHub and waits until the answer is on the page. The test and the page
+  # both hear :apps_changed, in no particular order, and not every one is the answer.
+  defp await_check(view, tries \\ 50) do
+    Apps.check_now()
+    await_latest(view, tries)
+  end
+
+  defp await_latest(view, tries) do
+    assert_receive :apps_changed, 5_000
+    # Apps broadcast before it answered tiles/0, so the render queues behind the page's copy.
+    ready? = Enum.all?(Apps.tiles(), &(&1.latest != nil or &1.latest_error))
+    _ = render(view)
+
+    cond do
+      ready? -> :ok
+      tries == 0 -> flunk("the check never answered")
+      true -> await_latest(view, tries - 1)
+    end
+  end
+
+  defp wait_until_idle(view, id, tries \\ 50) do
     tile = Enum.find(Apps.tiles(), &(&1.app.id == id))
 
     cond do
       tile.busy == nil ->
+        # Apps broadcast before it answered tiles/0, so this render queues behind
+        # the page's copy of the message.
+        _ = render(view)
         :ok
 
       tries == 0 ->
@@ -157,7 +177,7 @@ defmodule AscellaWeb.HomeLiveTest do
 
       true ->
         assert_receive :apps_changed, 5_000
-        wait_until_idle(id, tries - 1)
+        wait_until_idle(view, id, tries - 1)
     end
   end
 end
