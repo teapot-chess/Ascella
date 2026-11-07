@@ -5,7 +5,7 @@ defmodule Ascella.MixProject do
     [
       app: :ascella,
       version: "0.4.0",
-      package: [licenses: ["FSL-1.1-ALv2"]],
+      package: [licenses: ["LicenseRef-Ms-RSL"]],
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

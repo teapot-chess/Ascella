@@ -19,7 +19,7 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
-- [Change] **Source available, under the FSL.** The all-rights-reserved notice did its job for about a week and is retired. LICENSE is now the Functional Source License 1.1 with the Apache 2.0 future grant (FSL-1.1-ALv2): read it, run it, change it, use it for anything except selling a competing copy, and each release becomes plain Apache-2.0 two years after it is published. The README, NOTICE and package metadata agree, CI runs on GitHub-hosted runners now that anybody may watch it, and the release workflows stay switched off until December.
+- [Change] **Reference source, no longer a free-for-all.** The Functional Source License lasted an afternoon, which is roughly the lifespan of a decision nobody finished thinking about. Ascella's source is now published for reference under the Microsoft Reference Source License (Ms-RSL): you may read it, and that is the whole grant. The builds we publish remain free to use for running chess events; builds you make yourself are not covered. The version published under the FSL today keeps the FSL for whoever already has it, since a licence, unlike a mood, cannot be taken back. CI runs on GitHub-hosted runners now that anybody may watch it, and the release workflows stay switched off until December.
 
 
 ## [0.4.0] - 2026-11-01
