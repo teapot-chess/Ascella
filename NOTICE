@@ -1,5 +1,8 @@
 Ascella
-Copyright (c) 2026 teapot-chess. All rights reserved; see LICENSE.
+Copyright 2026 Jorian Burssens. Licensed under the Functional Source License,
+Version 1.1, Apache 2.0 Future License (FSL-1.1-ALv2); see LICENSE. Each
+version becomes available under the Apache License, Version 2.0 two years
+after it is released.
 
 The release machinery - rel/ (the Windows launcher and installer script, the
 Linux installer, updater and systemd units, the macOS app and its build

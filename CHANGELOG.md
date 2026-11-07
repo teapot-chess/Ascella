@@ -19,7 +19,8 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
-- [Change] **All rights reserved.** The Apache License 2.0 was a generous document for a program that has decided to keep its own counsel. LICENSE is now a short all-rights-reserved notice, and the README and NOTICE agree. Releases already published under the Apache licence keep it, since a licence granted cannot be taken back; the new terms apply from here on.
+- [Change] **Source available, under the FSL.** The all-rights-reserved notice did its job for about a week and is retired. LICENSE is now the Functional Source License 1.1 with the Apache 2.0 future grant (FSL-1.1-ALv2): read it, run it, change it, use it for anything except selling a competing copy, and each release becomes plain Apache-2.0 two years after it is published. The README, NOTICE and package metadata agree, CI runs on GitHub-hosted runners now that anybody may watch it, and the release workflows stay switched off until December.
+
 
 ## [0.4.0] - 2026-11-01
 
