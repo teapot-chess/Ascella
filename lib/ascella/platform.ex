@@ -52,9 +52,31 @@ defmodule Ascella.Platform do
   @doc "The machine's architecture, from the Erlang one and whether Rosetta is translating this program."
   def arch(system_architecture, translated?) do
     cond do
-      String.starts_with?(system_architecture, ["aarch64", "arm64"]) -> "aarch64"
-      translated? -> "aarch64"
-      true -> "x86_64"
+      String.starts_with?(system_architecture, ["aarch64", "arm64"]) ->
+        "aarch64"
+
+      translated? ->
+        "aarch64"
+
+      # 32-bit ARM, 32-bit x86 and the rest have no build: a target no app
+      # has, which the page says in words, instead of an x86_64 download
+      # that dies with "exec format error".
+      String.starts_with?(system_architecture, [
+        "arm",
+        "i386",
+        "i486",
+        "i586",
+        "i686",
+        "riscv",
+        "ppc",
+        "powerpc",
+        "mips",
+        "s390"
+      ]) ->
+        "unsupported"
+
+      true ->
+        "x86_64"
     end
   end
 

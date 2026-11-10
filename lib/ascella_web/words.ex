@@ -177,8 +177,57 @@ defmodule AscellaWeb.Words do
         tail: if(tail == "", do: gettext("(nothing)"), else: tail)
       )
 
-  def reason({:exit, program, status, _output}),
-    do: gettext("%{program} stopped with code %{status}.", program: program, status: status)
+  def reason({:exit, program, status, output}) do
+    said = output |> to_string() |> String.trim()
+    said = String.slice(said, max(String.length(said) - 300, 0)..-1//1)
+    base = gettext("%{program} stopped with code %{status}.", program: program, status: status)
+
+    if said == "",
+      do: base,
+      else: base <> " " <> gettext("What it said: %{tail}", tail: said)
+  end
+
+  def reason(:no_start), do: gettext("The download has no start file for this program.")
+
+  def reason(:no_install_script),
+    do: gettext("The download has no install script, so nothing was installed.")
+
+  def reason(:no_update_script),
+    do: gettext("The download has no update script, so nothing was updated.")
+
+  def reason(:no_pid), do: gettext("The program started, but did not say which process it is.")
+
+  def reason(:unreadable_release), do: gettext("The release could not be read.")
+  def reason(:unknown), do: gettext("Ascella does not know that program.")
+
+  def reason(:manual),
+    do: gettext("This copy cannot update itself: download the new version and replace this one.")
+
+  def reason({:swap, why}),
+    do:
+      gettext("The new version could not be put in place (%{why}). The old one was kept.",
+        why: inspect(why)
+      )
+
+  def reason({:unsafe_zip_entry, name}),
+    do:
+      gettext(
+        "The download has a file that would land outside its folder (%{name}), and was refused.",
+        name: name
+      )
+
+  def reason({:bad_zip, _why}), do: gettext("The download is not a zip file that can be opened.")
+  def reason(:nothing_to_show), do: gettext("There is nothing to show for that.")
+  def reason(:eacces), do: gettext("Ascella is not allowed to do that here (permission denied).")
+  def reason(:enoent), do: gettext("A file or folder that is needed is not there.")
+  def reason(:unsupported), do: gettext("There is no build for this computer.")
+
+  def reason(:no_unzip),
+    do:
+      gettext("This needs the program unzip. Install it (sudo apt install unzip) and try again.")
+
+  def reason(:too_big),
+    do: gettext("The download is larger than anything this release publishes, and was stopped.")
 
   def reason(other) when is_binary(other), do: other
   def reason(other), do: inspect(other)

@@ -106,8 +106,17 @@ defmodule Ascella.Installer.Portable do
   defp unpack(zip, dir, %{family: :windows} = ctx), do: Fs.unzip(zip, dir, ctx)
 
   defp unpack(zip, dir, ctx) do
-    with :ok <- Fs.mkdir_p(dir, ctx), do: Installer.run(ctx, "unzip", ["-q", zip, "-d", dir])
+    with :ok <- needs_unzip(ctx),
+         :ok <- Fs.mkdir_p(dir, ctx),
+         do: Installer.run(ctx, "unzip", ["-q", zip, "-d", dir])
   end
+
+  # A minimal Debian or Pi OS image has none: say which, not "unzip stopped
+  # with code 127". A fake runner (the tests) has nothing to look for.
+  defp needs_unzip(%{runner: Ascella.Runner.System}),
+    do: if(System.find_executable("unzip"), do: :ok, else: {:error, :no_unzip})
+
+  defp needs_unzip(_ctx), do: :ok
 
   defp switch(base, version, ctx) do
     old = word(Path.join(base, "current"))
@@ -198,9 +207,13 @@ defmodule Ascella.Installer.Portable do
   # The end of what the program wrote, or of what the launch itself said when
   # there is no log (the shell could not even open it).
   defp tail(log, said) do
+    # Only a plain file: the log lies in a folder the run-as user owns, and a
+    # symlink to /etc/shadow there is not something to read out loud as root.
     logged =
-      case File.read(log) do
-        {:ok, text} -> String.slice(text, -400, 400)
+      with {:ok, %File.Stat{type: :regular}} <- File.lstat(log),
+           {:ok, text} <- File.read(log) do
+        String.slice(text, max(String.length(text) - 400, 0)..-1//1)
+      else
         _none -> ""
       end
 

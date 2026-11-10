@@ -24,6 +24,8 @@ defmodule Ascella.Context do
     * `launchers` - Ascella's own folder for what it made (its record,
       wrapper scripts, icons)
     * `gsettings` - whether GNOME's `gsettings` is there (Linux)
+    * `service?` - whether this is the Linux systemd service; it offers no
+      shortcuts, since it has no desktop to put them on
     * `stop_timeout_ms`, `poll_ms` - how long a polite stop is waited for
     * `start_check_ms` - how long after starting a portable program it is
       looked at again; one that is already gone was not started
@@ -46,6 +48,7 @@ defmodule Ascella.Context do
     :applications,
     :launchers,
     gsettings: false,
+    service?: false,
     mac_apps: [],
     homes: [],
     root: "",
@@ -86,6 +89,9 @@ defmodule Ascella.Context do
       applications: applications(home),
       launchers: Path.join(Paths.data(), "launchers"),
       gsettings: family == :linux and System.find_executable("gsettings") != nil,
+      # The Linux systemd service (its unit sets the key file): its HOME is its
+      # own data folder, which nobody's menu or desktop looks into.
+      service?: family == :linux and System.get_env("ASCELLA_TOKEN_FILE") not in [nil, ""],
       sudo: family == :linux and not root?(),
       github: Application.get_env(:ascella, :github_req_options, [])
     }

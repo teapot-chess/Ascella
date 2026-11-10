@@ -10,6 +10,10 @@
 #   * DOS.StringToAtom - atoms come from the app's own literals, bundled data or a
 #     regex-bounded letter set, never from a request.
 #   * CI.System - fixed commands with an argument list (no shell string).
+#   * Config.CSRF - POST /access carries the access key itself (the proof a
+#     forgery token stands in for); a page elsewhere cannot have it, and a wrong
+#     key is a 403. It sits outside the :browser pipeline on purpose, because
+#     that pipeline's gate is what the key is the way past.
 #   * Config.CSWH - the socket origin is checked in config.
 #   * Config.CSP - no script-src policy is set; Phoenix's default
 #     put_secure_browser_headers is on the browser pipeline. Reported, not fixed:

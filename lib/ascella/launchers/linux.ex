@@ -14,7 +14,10 @@ defmodule Ascella.Launchers.Linux do
 
   @impl true
   def kinds(ctx, target) do
-    if target[:exec] || target[:wrapper] do
+    # Run as the service, HOME is /var/lib/ascella: a menu entry written there
+    # reports success and lands where no menu looks, and gsettings has no
+    # session to talk to. No offer is better than one that does nothing.
+    if (target[:exec] || target[:wrapper]) && not ctx.service? do
       [:menu] ++
         if(ctx.desktop && File.dir?(ctx.desktop), do: [:desktop], else: []) ++
         if(ctx.gsettings, do: [:favourites], else: [])

@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 
-#: lib/ascella_web/words.ex:181
+#: lib/ascella_web/words.ex:183
 #, elixir-autogen, elixir-format
 msgid "%{program} stopped with code %{status}."
 msgstr ""
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Check for updates"
 msgstr ""
 
-#: lib/ascella_web/words.ex:187
+#: lib/ascella_web/words.ex:236
 #, elixir-autogen, elixir-format
 msgid "Could not ask GitHub"
 msgstr ""
@@ -204,7 +204,7 @@ msgstr ""
 msgid "Not installed"
 msgstr ""
 
-#: lib/ascella_web/words.ex:186
+#: lib/ascella_web/words.ex:235
 #, elixir-autogen, elixir-format
 msgid "Nothing published yet"
 msgstr ""
@@ -311,6 +311,7 @@ msgid "The release has no file for this computer."
 msgstr ""
 
 #: lib/ascella_web/words.ex:159
+#: lib/ascella_web/words.ex:223
 #, elixir-autogen, elixir-format
 msgid "There is no build for this computer."
 msgstr ""
@@ -790,4 +791,84 @@ msgstr ""
 #: lib/ascella_web/live/home_live.ex:658
 #, elixir-autogen, elixir-format
 msgid "What's new"
+msgstr ""
+
+#: lib/ascella_web/words.ex:222
+#, elixir-autogen, elixir-format
+msgid "A file or folder that is needed is not there."
+msgstr ""
+
+#: lib/ascella_web/words.ex:201
+#, elixir-autogen, elixir-format
+msgid "Ascella does not know that program."
+msgstr ""
+
+#: lib/ascella_web/words.ex:221
+#, elixir-autogen, elixir-format
+msgid "Ascella is not allowed to do that here (permission denied)."
+msgstr ""
+
+#: lib/ascella_web/words.ex:214
+#, elixir-autogen, elixir-format
+msgid "The download has a file that would land outside its folder (%{name}), and was refused."
+msgstr ""
+
+#: lib/ascella_web/words.ex:193
+#, elixir-autogen, elixir-format
+msgid "The download has no install script, so nothing was installed."
+msgstr ""
+
+#: lib/ascella_web/words.ex:190
+#, elixir-autogen, elixir-format
+msgid "The download has no start file for this program."
+msgstr ""
+
+#: lib/ascella_web/words.ex:196
+#, elixir-autogen, elixir-format
+msgid "The download has no update script, so nothing was updated."
+msgstr ""
+
+#: lib/ascella_web/words.ex:230
+#, elixir-autogen, elixir-format
+msgid "The download is larger than anything this release publishes, and was stopped."
+msgstr ""
+
+#: lib/ascella_web/words.ex:219
+#, elixir-autogen, elixir-format
+msgid "The download is not a zip file that can be opened."
+msgstr ""
+
+#: lib/ascella_web/words.ex:208
+#, elixir-autogen, elixir-format
+msgid "The new version could not be put in place (%{why}). The old one was kept."
+msgstr ""
+
+#: lib/ascella_web/words.ex:198
+#, elixir-autogen, elixir-format
+msgid "The program started, but did not say which process it is."
+msgstr ""
+
+#: lib/ascella_web/words.ex:200
+#, elixir-autogen, elixir-format
+msgid "The release could not be read."
+msgstr ""
+
+#: lib/ascella_web/words.ex:220
+#, elixir-autogen, elixir-format
+msgid "There is nothing to show for that."
+msgstr ""
+
+#: lib/ascella_web/words.ex:204
+#, elixir-autogen, elixir-format
+msgid "This copy cannot update itself: download the new version and replace this one."
+msgstr ""
+
+#: lib/ascella_web/words.ex:227
+#, elixir-autogen, elixir-format
+msgid "This needs the program unzip. Install it (sudo apt install unzip) and try again."
+msgstr ""
+
+#: lib/ascella_web/words.ex:187
+#, elixir-autogen, elixir-format
+msgid "What it said: %{tail}"
 msgstr ""

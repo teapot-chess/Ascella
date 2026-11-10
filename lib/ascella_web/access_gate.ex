@@ -39,12 +39,17 @@ defmodule AscellaWeb.AccessGate do
   defp let_in(conn) do
     conn
     |> put_session(@session_key, Access.marker())
-    |> put_resp_header("location", conn.request_path)
+    |> put_resp_header("location", safe_path(conn.request_path))
     |> send_resp(302, "")
     |> halt()
   end
 
-  defp turn_away(conn) do
+  # One slash and no more at the start: "//host" in a Location is somebody
+  # else's address.
+  defp safe_path(path), do: "/" <> String.trim_leading(path, "/")
+
+  @doc false
+  def turn_away(conn) do
     conn
     |> put_resp_content_type("text/plain")
     |> send_resp(
