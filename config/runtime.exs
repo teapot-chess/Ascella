@@ -33,6 +33,12 @@ if token_file = System.get_env("ASCELLA_TOKEN_FILE") do
   config :ascella, access_token_file: token_file
 end
 
+# Windows and macOS: the same key for the page, from the launcher's per-start
+# secret. Off until the launchers open the page with it. See Ascella.Access.
+if System.get_env("ASCELLA_LOCAL_KEY") == "1" do
+  config :ascella, local_key: true
+end
+
 # Another catalogue than the one in priv/ (a test hall, a fork). It is read
 # as data and held to the same rules: GitHub repositories only.
 if catalogue = System.get_env("ASCELLA_CATALOGUE") do
@@ -41,6 +47,12 @@ end
 
 if data_dir do
   config :ascella, data_dir: data_dir
+end
+
+# Where unpacked programs go, when not under the data folder (the Linux
+# service: so the user the programs run as need not be given the data folder).
+if programs = System.get_env("ASCELLA_PROGRAMS") do
+  config :ascella, programs_dir: Path.expand(programs)
 end
 
 if config_env() == :dev do

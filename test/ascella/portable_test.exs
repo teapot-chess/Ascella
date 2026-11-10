@@ -54,8 +54,7 @@ defmodule Ascella.PortableTest do
       assert File.dir?(logs)
       assert_received {:ran, "chown", ["--", "hall", ^logs]}
       programs = ctx.programs
-      data = Path.dirname(programs)
-      assert_received {:ran, "chmod", ["o+x", ^data, ^programs, ^base]}
+      assert_received {:ran, "chmod", ["o+x", ^programs, ^base]}
 
       assert_received {:ran, "env", words}
       log = Path.join(logs, "zipapp.log")

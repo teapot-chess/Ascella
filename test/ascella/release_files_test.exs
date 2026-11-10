@@ -489,6 +489,9 @@ defmodule Ascella.ReleaseFilesTest do
 
       assert unit =~ "Environment=ASCELLA_TOKEN_FILE=/run/ascella/token"
       assert unit =~ "RuntimeDirectory=ascella"
+      assert unit =~ "RuntimeDirectoryPreserve=yes"
+      assert unit =~ "Environment=ASCELLA_PROGRAMS=/var/lib/ascella-programs"
+      refute read("lib/ascella/installer/portable.ex") =~ "Path.dirname(ctx.programs)"
       assert script =~ ~s(if [ "${1:-}" = open ])
       assert script =~ "ASCELLA_TOKEN_FILE:-/run/ascella/token"
       assert script =~ "/?k="

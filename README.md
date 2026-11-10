@@ -117,6 +117,7 @@ See `Ascella.Catalogue` for every field.
 | variable | what |
 |---|---|
 | `PORT` | the page's port, default 4090; always on 127.0.0.1 |
+| `ASCELLA_PROGRAMS` | Where portable programs are unpacked, when not in `programs` under the data folder (the Linux service sets `/var/lib/ascella-programs`) |
 | `ASCELLA_DATA` | Ascella's own folder (downloads, portable programs, its secret) |
 | `ASCELLA_CATALOGUE` | another catalogue |
 | `ASCELLA_APPS_DIR` | macOS: where the apps go, instead of `/Applications` (then `~/Applications`) |
