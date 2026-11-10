@@ -29,6 +29,18 @@ defmodule AscellaWeb.Router do
     get "/remove-ascella", HelpController, :remove_self
   end
 
+  # Where `ascella.sh open` posts the key (see AccessController): no
+  # forgery token to have, the key is the proof, and no gate in front of it.
+  pipeline :access do
+    plug AscellaWeb.LocalOnly
+    plug :fetch_session
+  end
+
+  scope "/", AscellaWeb do
+    pipe_through :access
+    post "/access", AccessController, :create
+  end
+
   scope "/", AscellaWeb do
     get "/favicon.svg", HelpController, :favicon
   end

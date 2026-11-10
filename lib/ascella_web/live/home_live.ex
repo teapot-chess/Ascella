@@ -39,8 +39,8 @@ defmodule AscellaWeb.HomeLive do
       {:error, :updating_self} ->
         {:noreply, put_flash(socket, :error, Words.reason(:updating_self))}
 
-      {:error, _} ->
-        {:noreply, socket}
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, Words.reason(reason))}
     end
   end
 

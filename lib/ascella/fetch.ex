@@ -263,7 +263,8 @@ defmodule Ascella.Fetch do
     do: {:error, {:redirect_refused, url}}
 
   defp get_to_file(url, path, req_options, missing, hops) do
-    with :ok <- allowed(url) do
+    with :ok <- allowed(url),
+         :ok <- File.write(path, "") do
       request =
         [
           url: url,
@@ -272,13 +273,15 @@ defmodule Ascella.Fetch do
           decode_body: false,
           receive_timeout: 60_000,
           retry: false,
-          into: File.stream!(path)
+          into: sink(path, limit_for(path))
         ]
         |> Keyword.merge(req_options)
 
       case Req.get(Req.new(request)) do
-        {:ok, %Req.Response{status: 200}} ->
-          :ok
+        {:ok, %Req.Response{status: 200} = response} ->
+          if Req.Response.get_private(response, :too_big, false),
+            do: {:error, :too_big},
+            else: :ok
 
         {:ok, %Req.Response{status: status} = response}
         when status in [301, 302, 303, 307, 308] ->
@@ -299,6 +302,29 @@ defmodule Ascella.Fetch do
 
         {:error, reason} ->
           {:error, {:offline, reason}}
+      end
+    end
+  end
+
+  # A wrong or hostile asset must not fill the disk of a small box before the
+  # checksum has a chance to say no: the sums file is a few hundred bytes, an
+  # app's archive a few hundred megabytes, and nothing here is bigger than
+  # two gigabytes.
+  @sums_limit 1_048_576
+  @file_limit 2_147_483_648
+
+  defp limit_for(path),
+    do: if(Path.basename(path) == "SHA256SUMS", do: @sums_limit, else: @file_limit)
+
+  defp sink(path, limit) do
+    fn {:data, data}, {request, response} ->
+      seen = Req.Response.get_private(response, :seen, 0) + byte_size(data)
+
+      if seen > limit do
+        {:halt, {request, Req.Response.put_private(response, :too_big, true)}}
+      else
+        File.write!(path, data, [:append])
+        {:cont, {request, Req.Response.put_private(response, :seen, seen)}}
       end
     end
   end

@@ -72,6 +72,21 @@ defmodule AscellaWeb.AccessTest do
     assert html =~ "Ascella"
   end
 
+  test "the key can be posted instead of put in an address (ascella.sh open does)", %{
+    conn: conn,
+    key: key
+  } do
+    conn = post(conn, "/access", %{"k" => key})
+    assert redirected_to(conn, 302) == "/"
+
+    assert conn |> recycle() |> get("/help") |> html_response(200)
+  end
+
+  test "a wrong or missing posted key is a 403", %{conn: conn} do
+    assert conn |> post("/access", %{"k" => "not-the-key"}) |> response(403)
+    assert conn |> post("/access", %{}) |> response(403)
+  end
+
   test "a cookie from before a restart is not good any more", %{conn: conn, key: key, path: path} do
     conn = get(conn, "/?k=#{key}")
     assert redirected_to(conn, 302)

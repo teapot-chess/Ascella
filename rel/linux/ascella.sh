@@ -49,11 +49,28 @@ if [ "${1:-}" = open ]; then
   fi
   # The service's port is the one in its env file, when that says one.
   port=$(sed -n 's/^PORT=\([0-9][0-9]*\)$/\1/p' /etc/ascella/ascella.env 2>/dev/null | tail -n 1)
-  url="http://localhost:${port:-$PORT}/?k=$(cat "$token_file")"
+  base="http://localhost:${port:-$PORT}"
+  key=$(cat "$token_file")
+  # --print is for pasting somewhere else, so it has to be a link. Opening it
+  # here is not: a key in a command line is a key in /proc/<pid>/cmdline,
+  # which every account on the box can read. So the browser is given a small
+  # page of 0600 mode, in a folder of 0700, whose form posts the key to
+  # Ascella; the page is gone after a minute.
   if [ "${1:-}" = --print ] || [ "$(id -u)" = 0 ] || ! command -v xdg-open >/dev/null 2>&1; then
-    echo "$url"
+    echo "$base/?k=$key"
   else
-    xdg-open "$url" >/dev/null 2>&1 || echo "$url"
+    old_umask=$(umask)
+    umask 077
+    dir=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/ascella-open.XXXXXX") || exit 1
+    page="$dir/open.html"
+    {
+      echo '<!doctype html><meta charset="utf-8"><title>Ascella</title>'
+      echo "<form id=f method=post action=\"$base/access\"><input type=hidden name=k value=\"$key\"><noscript><button>Open Ascella</button></noscript></form>"
+      echo '<script>document.getElementById("f").submit()</script>'
+    } >"$page"
+    umask "$old_umask"
+    (sleep 60; rm -rf "$dir") >/dev/null 2>&1 &
+    xdg-open "$page" >/dev/null 2>&1 || { rm -rf "$dir"; echo "$base/?k=$key"; }
   fi
   exit 0
 fi

@@ -107,6 +107,7 @@ defmodule Ascella.Apps do
       latest: %{},
       own: nil,
       busy: %{},
+      tasks: %{},
       offers: MapSet.new(),
       errors: %{},
       queue: []
@@ -220,14 +221,24 @@ defmodule Ascella.Apps do
         true -> state.offers
       end
 
-    state = %{state | busy: Map.delete(state.busy, id), errors: errors, offers: offers}
+    state = %{
+      state
+      | busy: Map.delete(state.busy, id),
+        tasks: Map.delete(state.tasks, ref),
+        errors: errors,
+        offers: offers
+    }
+
     {:noreply, state |> look() |> next_in_queue() |> broadcast()}
   end
 
-  def handle_info({:DOWN, _ref, :process, _pid, reason}, state) do
-    # A task that crashed: whichever app it was for is not busy any more.
+  def handle_info({:DOWN, ref, :process, _pid, reason}, state) do
+    # A task that crashed: the app it was for is not busy any more. Only that
+    # one: another may be under way, and is not unlocked by this one's death.
     Logger.error("Ascella: an action crashed: #{inspect(reason)}")
-    {:noreply, state |> Map.put(:busy, %{}) |> look() |> broadcast()}
+    {id, tasks} = Map.pop(state.tasks, ref)
+    busy = if id, do: Map.delete(state.busy, id), else: state.busy
+    {:noreply, %{state | busy: busy, tasks: tasks} |> look() |> broadcast()}
   end
 
   def handle_info(_other, state), do: {:noreply, state}
@@ -292,11 +303,10 @@ defmodule Ascella.Apps do
         {:done, app.id, action, result}
       end)
 
-    _ = task
-
     broadcast(%{
       state
       | busy: Map.put(state.busy, app.id, action),
+        tasks: Map.put(state.tasks, task.ref, app.id),
         errors: Map.delete(state.errors, app.id)
     })
   end
@@ -395,20 +405,22 @@ defmodule Ascella.Apps do
     ctx = Context.current()
     own = state.own
 
-    Task.Supervisor.async_nolink(Ascella.TaskSupervisor, fn ->
-      result =
-        try do
-          Updates.apply(own, ctx)
-        rescue
-          error -> {:error, Exception.message(error)}
-        end
+    task =
+      Task.Supervisor.async_nolink(Ascella.TaskSupervisor, fn ->
+        result =
+          try do
+            Updates.apply(own, ctx)
+          rescue
+            error -> {:error, Exception.message(error)}
+          end
 
-      {:done, @self, :update_self, result}
-    end)
+        {:done, @self, :update_self, result}
+      end)
 
     broadcast(%{
       state
       | busy: Map.put(state.busy, @self, :update_self),
+        tasks: Map.put(state.tasks, task.ref, @self),
         errors: Map.delete(state.errors, @self)
     })
   end

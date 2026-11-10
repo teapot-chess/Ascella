@@ -50,11 +50,20 @@ main() {
 
     while [ $# -gt 0 ]; do
         case "$1" in
-            --version) wanted="$2"; shift 2 ;;
+            --version)
+                [ $# -ge 2 ] || die "--version wants a version number, like 0.4.0."
+                wanted="$2"
+                shift 2
+                ;;
             -h | --help) sed -n '2,30p' "$0"; exit 0 ;;
             *) die "unknown option: $1" ;;
         esac
     done
+
+    # The version goes into a download address: digits and dots, three parts.
+    if [ -n "$wanted" ] && ! printf '%s' "$wanted" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+        die "that is not a version number: $wanted (like 0.4.0)."
+    fi
 
     [ "$(id -u)" = 0 ] || die "run this as root (sudo)."
     [ "$(uname -s)" = Linux ] || die "this installs on Linux. For Windows there is Ascella-Setup.exe."
@@ -87,7 +96,12 @@ main() {
     fi
 
     # A release this script stands in, or one to fetch.
-    here=$(CDPATH='' cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || echo "")
+    # Piped from curl, $0 is "sh" and its folder is wherever the shell stands:
+    # a release that happens to lie in the current directory is not this one.
+    case "$0" in
+        sh | -sh | bash | -bash | dash | -dash | */sh | */bash | */dash) here="" ;;
+        *) here=$(CDPATH='' cd -- "$(dirname -- "$0")" 2>/dev/null && pwd || echo "") ;;
+    esac
     tmp=""
     trap 'if [ -n "$tmp" ]; then rm -rf "$tmp"; fi' EXIT
 

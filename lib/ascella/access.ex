@@ -13,8 +13,10 @@ defmodule Ascella.Access do
       `ASCELLA_TOKEN_FILE` (`/run/ascella/token` in the service unit), mode
       0600, owned by the user `ASCELLA_RUN_AS` names when there is one. Root
       and the desktop user can read it; nobody else on the box can;
-    * the way in is a link that carries it once, `/?k=<key>`, which
-      `ascella.sh open` prints or opens. The page takes the key, puts a signed
+    * the way in is the key, which `ascella.sh open` hands to the page: in
+      a form posted to `/access` from a page only its owner can read (a key
+      on a command line is one `ps` shows to every account), or as a link
+      `/?k=<key>` that `ascella.sh open --print` prints for pasting. The page takes the key, puts a signed
       marker in the session cookie (the signing secret is root's) and redirects
       to the same address without it, so the key is neither in the history nor
       in a log of the next request;
