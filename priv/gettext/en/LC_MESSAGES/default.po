@@ -872,3 +872,18 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "What it said: %{tail}"
 msgstr ""
+
+#: lib/ascella_web/access_gate.ex:57
+#, elixir-autogen, elixir-format
+msgid "(as the desktop user named by ASCELLA_RUN_AS, or with sudo)."
+msgstr "(as the desktop user named by ASCELLA_RUN_AS, or with sudo)."
+
+#: lib/ascella_web/local_only.ex:26
+#, elixir-autogen, elixir-format
+msgid "Ascella answers this machine only: open http://localhost:%{port}"
+msgstr "Ascella answers this machine only: open http://localhost:%{port}"
+
+#: lib/ascella_web/access_gate.ex:56
+#, elixir-autogen, elixir-format
+msgid "Ascella wants its key. Open it with: sh /opt/ascella/current/ascella.sh open"
+msgstr "Ascella wants its key. Open it with: sh /opt/ascella/current/ascella.sh open"

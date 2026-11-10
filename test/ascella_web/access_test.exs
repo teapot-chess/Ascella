@@ -87,15 +87,95 @@ defmodule AscellaWeb.AccessTest do
     assert conn |> post("/access", %{}) |> response(403)
   end
 
-  test "a cookie from before a restart is not good any more", %{conn: conn, key: key, path: path} do
+  test "the key is stable for the boot: a restart that finds the file keeps it, and the cookie",
+       %{
+         conn: conn,
+         key: key,
+         path: path
+       } do
     conn = get(conn, "/?k=#{key}")
     assert redirected_to(conn, 302)
     old = recycle(conn)
     assert old |> get("/help") |> html_response(200)
 
     Access.start()
+    assert key == path |> File.read!() |> String.trim()
+    assert old |> recycle() |> get("/help") |> html_response(200)
+  end
+
+  test "a cookie from before a reboot is not good any more", %{conn: conn, key: key, path: path} do
+    conn = get(conn, "/?k=#{key}")
+    assert redirected_to(conn, 302)
+    old = recycle(conn)
+    assert old |> get("/help") |> html_response(200)
+
+    # A reboot empties /run: no file, a new key.
+    File.rm!(path)
+    Access.start()
     refute key == path |> File.read!() |> String.trim()
     assert old |> recycle() |> get("/help") |> response(403)
+  end
+
+  test "a file that is not a key is replaced, not trusted", %{path: path, key: key} do
+    File.write!(path, "short
+")
+    Access.start()
+    new = path |> File.read!() |> String.trim()
+    assert byte_size(new) == 43
+    refute new == key
+  end
+
+  test "the two 403 pages speak Dutch to a Dutch browser", %{conn: conn} do
+    nl = conn |> put_req_header("accept-language", "nl-BE,nl;q=0.9") |> get("/")
+    assert response(nl, 403) =~ "wil zijn sleutel"
+
+    en = conn |> recycle() |> get("/")
+    assert response(en, 403) =~ "wants its key"
+
+    other =
+      conn
+      |> recycle()
+      |> Map.put(:host, "evil.example")
+      |> put_req_header("accept-language", "nl")
+      |> get("/")
+
+    assert response(other, 403) =~ "alleen op deze computer"
+  end
+
+  describe "Windows and macOS: the same key, behind a flag that is off by default" do
+    setup do
+      Application.delete_env(:ascella, :access_token_file)
+      on_exit(fn -> Application.delete_env(:ascella, :local_key) end)
+      System.put_env("ASCELLA_LAUNCHER_TOKEN", "a-per-start-secret-of-the-launcher")
+      on_exit(fn -> System.delete_env("ASCELLA_LAUNCHER_TOKEN") end)
+      :ok
+    end
+
+    test "off: nothing is asked for", %{conn: conn} do
+      Access.start()
+      refute Access.required?()
+      assert conn |> get("/help") |> html_response(200)
+    end
+
+    test "on: the launcher's secret is the key", %{conn: conn} do
+      Application.put_env(:ascella, :local_key, true)
+      Access.start()
+      assert Access.required?()
+      assert Access.valid?("a-per-start-secret-of-the-launcher")
+      assert conn |> get("/help") |> response(403)
+
+      conn = get(conn, "/?k=a-per-start-secret-of-the-launcher")
+      assert redirected_to(conn, 302) == "/"
+      assert conn |> recycle() |> get("/help") |> html_response(200)
+    end
+
+    test "on, but no launcher secret: nothing is asked for (a terminal start)", %{conn: conn} do
+      System.delete_env("ASCELLA_LAUNCHER_TOKEN")
+      Application.put_env(:ascella, :local_key, true)
+      Access.start()
+      refute Access.required?()
+      assert conn |> get("/help") |> html_response(200)
+    end
   end
 
   test "a LiveView socket without the marker is sent away" do

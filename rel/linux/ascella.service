@@ -23,6 +23,10 @@ WorkingDirectory=/var/lib/ascella
 Environment=HOME=/var/lib/ascella
 Environment=LANG=C.UTF-8
 Environment=ASCELLA_DATA=/var/lib/ascella
+# The programs Ascella starts as ASCELLA_RUN_AS live here, outside the data
+# folder, so that user can reach them without the data being opened to
+# every account on the box.
+Environment=ASCELLA_PROGRAMS=/var/lib/ascella-programs
 Environment=PORT=4090
 # Where the service leaves the key its page wants (Ascella.Access): written at
 # every start, mode 0600, owned by ASCELLA_RUN_AS when that is set in
@@ -35,6 +39,9 @@ Environment=RELEASE_DISTRIBUTION=none
 # The release writes its start-up configuration somewhere; not into /opt.
 Environment=RELEASE_TMP=/run/ascella
 RuntimeDirectory=ascella
+# Kept when the service stops, gone at reboot: the key in it is the same for
+# the whole boot, so the Setup page's tab survives Ascella's own update.
+RuntimeDirectoryPreserve=yes
 # Tells the program that "Download and install" has somebody to ask
 # (ascella-update.path), and where that somebody leaves its answer. Root
 # could run update.sh itself, but update.sh stops this service, and a

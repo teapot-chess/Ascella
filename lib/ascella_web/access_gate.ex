@@ -9,6 +9,7 @@ defmodule AscellaWeb.AccessGate do
   """
   @behaviour Plug
 
+  use Gettext, backend: AscellaWeb.Gettext
   import Plug.Conn
 
   alias Ascella.Access
@@ -50,13 +51,15 @@ defmodule AscellaWeb.AccessGate do
 
   @doc false
   def turn_away(conn) do
+    body =
+      Gettext.with_locale(AscellaWeb.Gettext, AscellaWeb.Locale.detect(conn), fn ->
+        gettext("Ascella wants its key. Open it with: sh /opt/ascella/current/ascella.sh open") <>
+          "\n" <> gettext("(as the desktop user named by ASCELLA_RUN_AS, or with sudo).") <> "\n"
+      end)
+
     conn
     |> put_resp_content_type("text/plain")
-    |> send_resp(
-      403,
-      "Ascella wants its key. Open it with: sh /opt/ascella/current/ascella.sh open\n" <>
-        "(as the desktop user named by ASCELLA_RUN_AS, or with sudo).\n"
-    )
+    |> send_resp(403, body)
     |> halt()
   end
 

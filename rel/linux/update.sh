@@ -29,6 +29,7 @@ REPO="teapot-chess/Ascella"
 INSTALL_DIR="/opt/ascella"
 DATA_DIR="/var/lib/ascella"
 CONF_FILE="/etc/ascella/ascella.env"
+PROGRAMS_DIR="/var/lib/ascella-programs"
 STATUS_FILE="/var/lib/ascella-update/status"
 REQUEST_FILE="$DATA_DIR/update/request"
 UNIT_DIR="/etc/systemd/system"
@@ -212,6 +213,16 @@ main() {
     if [ "$restart" = 1 ]; then
         systemctl stop "$SERVICE" || true
     fi
+
+    # The programs Ascella starts live beside the data, not inside it, so that
+    # the user they run as can walk to them without the data folder having to
+    # be opened to every account. Older installs kept them in $DATA_DIR/programs.
+    if [ -d "$DATA_DIR/programs" ] && [ ! -e "$PROGRAMS_DIR" ]; then
+        mv -T "$DATA_DIR/programs" "$PROGRAMS_DIR"
+    fi
+    install -d -o root -g root -m 0755 "$PROGRAMS_DIR"
+    # An earlier version opened the data folder for traversal; close it again.
+    chmod o-x "$DATA_DIR" 2>/dev/null || true
 
     point_current_at "$new"
     refresh_tools

@@ -14,6 +14,23 @@ defmodule AscellaWeb.Locale do
 
   def init(opts), do: opts
 
+  @doc """
+  The language this request would get, for plugs that answer before this one
+  runs (the 403 pages): `?lang=`, the session when it has been fetched, then
+  the browser's own header.
+  """
+  def detect(conn) do
+    conn = Plug.Conn.fetch_query_params(conn)
+    chosen = conn.query_params["lang"]
+    session = if Map.has_key?(conn.private, :plug_session), do: get_session(conn, "locale")
+
+    cond do
+      chosen in @locales -> chosen
+      session in @locales -> session
+      true -> from_header(get_req_header(conn, "accept-language"))
+    end
+  end
+
   def call(conn, _opts) do
     chosen = conn.params["lang"]
 

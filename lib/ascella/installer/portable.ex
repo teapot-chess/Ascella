@@ -230,7 +230,10 @@ defmodule Ascella.Installer.Portable do
 
     with :ok <- Fs.mkdir_p(logs, ctx),
          :ok <- Installer.run(ctx, "chown", ["--", user, logs]) do
-      Installer.run(ctx, "chmod", ["o+x", Path.dirname(ctx.programs), ctx.programs, base])
+      # The data root is never opened: the service keeps programs in a folder
+      # of their own (ASCELLA_PROGRAMS), and only that and this program's folder
+      # need to be walkable.
+      Installer.run(ctx, "chmod", ["o+x", ctx.programs, base])
     end
   end
 
