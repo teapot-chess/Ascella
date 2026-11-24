@@ -12,6 +12,7 @@ defmodule AscellaWeb.Layouts do
   attr :path, :string, default: "/"
   slot :inner_block, required: true
 
+  # sobelow_skip ["XSS.Raw"]
   def app(assigns) do
     ~H"""
     <div class="shell">

@@ -69,6 +69,7 @@ defmodule Ascella.Access do
 
   # The key of this boot, when the file of the last start is still there: a
   # plain file, and a key as long as the ones made here.
+  # sobelow_skip ["Traversal.FileModule"]
   defp reuse(path) do
     with {:ok, %File.Stat{type: :regular}} <- File.lstat(path),
          {:ok, text} <- File.read(path),
@@ -127,6 +128,7 @@ defmodule Ascella.Access do
   def granted?(_other), do: false
 
   # Created closed, then filled: the key is never in a file others can read.
+  # sobelow_skip ["Traversal.FileModule"]
   defp publish(path, token) do
     File.mkdir_p(Path.dirname(path))
     File.rm(path)

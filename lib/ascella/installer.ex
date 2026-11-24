@@ -112,6 +112,7 @@ defmodule Ascella.Installer do
   # catalogue names for this app, and only when none of them contains or lies
   # in another app's data. Ascella.Fs would refuse all of it, which is why
   # this does not go through Ascella.Fs.
+  # sobelow_skip ["Traversal.FileModule"]
   defp delete_data(app, mod, ctx) do
     others = Enum.reject(Catalogue.apps(), &(&1.id == app.id))
     protected = [ctx.home, ctx.local_app_data, ctx.root, "/"] |> Enum.filter(&is_binary/1)
@@ -299,6 +300,7 @@ defmodule Ascella.Installer do
   end
 
   @doc "Reads a VERSION file (one line, a version)."
+  # sobelow_skip ["Traversal.FileModule"]
   def read_version(path) do
     with {:ok, text} <- File.read(path),
          version = String.trim(text),

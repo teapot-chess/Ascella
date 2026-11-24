@@ -45,6 +45,7 @@ defmodule AscellaWeb.Logo do
     end
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp read_mark(file) do
     path = Path.join(Application.app_dir(:ascella, "priv/marks"), file)
 

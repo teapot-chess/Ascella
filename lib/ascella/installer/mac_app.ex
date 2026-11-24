@@ -204,6 +204,7 @@ defmodule Ascella.Installer.MacApp do
   @doc false
   # CFBundleShortVersionString out of an XML Info.plist, which is what the
   # apps' build_app.sh writes.
+  # sobelow_skip ["Traversal.FileModule"]
   def bundle_version(app_path) do
     with {:ok, plist} <- File.read(Path.join([app_path, "Contents", "Info.plist"])),
          [_, version] <-

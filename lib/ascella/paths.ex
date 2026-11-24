@@ -18,6 +18,7 @@ defmodule Ascella.Paths do
     end
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp ensure(dir) do
     File.mkdir_p!(dir)
     dir

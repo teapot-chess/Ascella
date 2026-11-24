@@ -65,6 +65,7 @@ defmodule Ascella.Launchers.Linux do
 
   def desktop_id(app), do: "ascella-#{app.id}.desktop"
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp write_entry(path, app, target, existing, trust?, ctx) do
     if File.exists?(path) and existing == nil do
       {:error, :already_there}

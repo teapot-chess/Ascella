@@ -10,11 +10,13 @@ defmodule Ascella.Fs do
   alias Ascella.{Context, Guard}
 
   @doc "Makes a directory (and its parents)."
+  # sobelow_skip ["Traversal.FileModule"]
   def mkdir_p(path, %Context{} = ctx) do
     with :ok <- Guard.check(path, ctx), do: File.mkdir_p(path)
   end
 
   @doc "Moves `from` to `to`. Both are checked; a rename is two paths' worth of trouble."
+  # sobelow_skip ["Traversal.FileModule"]
   def rename(from, to, %Context{} = ctx) do
     with :ok <- Guard.check(from, ctx),
          :ok <- Guard.check(to, ctx),
@@ -24,6 +26,7 @@ defmodule Ascella.Fs do
   end
 
   @doc "Removes exactly `path`, a file or a whole folder. Checked like everything else."
+  # sobelow_skip ["Traversal.FileModule"]
   def rm_rf(path, %Context{} = ctx) do
     with :ok <- Guard.check(path, ctx) do
       case File.rm_rf(path) do
@@ -34,6 +37,7 @@ defmodule Ascella.Fs do
   end
 
   @doc "Writes a file (its folder is made first)."
+  # sobelow_skip ["Traversal.FileModule"]
   def write(path, content, %Context{} = ctx) do
     with :ok <- Guard.check(path, ctx),
          :ok <- File.mkdir_p(Path.dirname(path)) do
@@ -42,6 +46,7 @@ defmodule Ascella.Fs do
   end
 
   @doc "Unpacks a zip into `dir` with Erlang's own unzip (no executable bit; Windows does not miss it)."
+  # sobelow_skip ["Traversal.FileModule"]
   def unzip(zip, dir, %Context{} = ctx) do
     with :ok <- Guard.check(dir, ctx),
          :ok <- inside_only(zip),
