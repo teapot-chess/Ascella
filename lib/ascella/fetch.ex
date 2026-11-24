@@ -192,6 +192,7 @@ defmodule Ascella.Fetch do
   `{:checksum_mismatch, expected, actual}`, `{:redirect_refused, url}`, or
   a transport error.
   """
+  # sobelow_skip ["Traversal.FileModule"]
   def download(repo, tag, name, dir, req_options \\ []) do
     base = "https://github.com/#{repo}/releases/download/#{tag}"
     sums_path = Path.join(dir, "SHA256SUMS")
@@ -225,6 +226,7 @@ defmodule Ascella.Fetch do
   def still?(path, sha256), do: File.regular?(path) and sha256(path) == sha256
 
   @doc "The SHA-256 of a file, in lower-case hex."
+  # sobelow_skip ["Traversal.FileModule"]
   def sha256(path) do
     path
     |> File.stream!(65_536)
@@ -244,6 +246,7 @@ defmodule Ascella.Fetch do
     end
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp expected_sum(sums_path, name) do
     case sums_path |> File.read!() |> parse_sums() |> Map.fetch(name) do
       {:ok, sum} -> {:ok, sum}
@@ -262,6 +265,7 @@ defmodule Ascella.Fetch do
   defp get_to_file(url, _path, _req_options, _missing, hops) when hops > @max_redirects,
     do: {:error, {:redirect_refused, url}}
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp get_to_file(url, path, req_options, missing, hops) do
     with :ok <- allowed(url),
          :ok <- File.write(path, "") do
@@ -316,6 +320,7 @@ defmodule Ascella.Fetch do
   defp limit_for(path),
     do: if(Path.basename(path) == "SHA256SUMS", do: @sums_limit, else: @file_limit)
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp sink(path, limit) do
     fn {:data, data}, {request, response} ->
       seen = Req.Response.get_private(response, :seen, 0) + byte_size(data)

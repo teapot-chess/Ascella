@@ -114,6 +114,7 @@ defmodule Ascella.Launchers do
     with {:ok, target} <- wrapper(app, target, ctx), do: icon(app, target, ctx)
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp wrapper(_app, %{wrapper: %{base: base, folder: folder, start: start}} = target, ctx) do
     {name, body, mode} =
       if ctx.family == :windows do
@@ -146,6 +147,7 @@ defmodule Ascella.Launchers do
 
   # An .ico is not made: a shortcut takes the program's own icon, and the
   # exe of the version installed now carries it. refresh/2 follows updates.
+  # sobelow_skip ["Traversal.FileModule"]
   defp win_exe(base, folder, start) do
     with {:ok, text} <- File.read(Path.join(base, "current")),
          version = String.trim(text),
@@ -158,6 +160,7 @@ defmodule Ascella.Launchers do
     end
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp icon(app, %{icon: :mark} = target, ctx) do
     path = Path.join([ctx.launchers, "icons", app.id <> ".svg"])
 
@@ -219,6 +222,7 @@ defmodule Ascella.Launchers do
   end
 
   @doc "Everything recorded for `app`, installed or not: `[kind]`."
+  # sobelow_skip ["DOS.StringToAtom"]
   def recorded(app, ctx),
     do: (records(ctx)[app.id] || %{}) |> Map.keys() |> Enum.map(&String.to_atom/1)
 
@@ -305,6 +309,7 @@ defmodule Ascella.Launchers do
     end
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp delete_file(%{"file" => true, "path" => path}, ctx) do
     if owned_folder?(path, ctx) do
       case File.rm(path) do
@@ -339,6 +344,7 @@ defmodule Ascella.Launchers do
   end
 
   # The wrapper and the icon are Ascella's own files, named after the app.
+  # sobelow_skip ["Traversal.FileModule"]
   defp tidy(app, ctx) do
     if is_binary(ctx.launchers) do
       File.rm(Path.join([ctx.launchers, "icons", app.id <> ".svg"]))
@@ -354,6 +360,7 @@ defmodule Ascella.Launchers do
   defp file(ctx), do: Path.join(ctx.launchers, "launchers.json")
 
   @doc false
+  # sobelow_skip ["Traversal.FileModule"]
   def records(ctx) do
     with {:ok, text} <- File.read(file(ctx)),
          {:ok, %{} = map} <- Jason.decode(text) do
@@ -374,6 +381,7 @@ defmodule Ascella.Launchers do
     save(ctx, if(left == %{}, do: Map.delete(records, id), else: Map.put(records, id, left)))
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp save(ctx, records) do
     File.mkdir_p!(ctx.launchers)
     tmp = file(ctx) <> ".new"

@@ -140,6 +140,7 @@ defmodule Ascella.Updates do
   def log_file, do: Path.join([Paths.data(), "logs", "self-update.log"])
 
   @doc "The helper's last word as `{:ok | :rolled_back | :failed | :stuck, version}`, or nil."
+  # sobelow_skip ["Traversal.FileModule"]
   def last_result do
     with {:ok, text} <- File.read(status_file()),
          [word, version] <- String.split(String.trim(text), " ", parts: 2),
@@ -169,6 +170,7 @@ defmodule Ascella.Updates do
   def apply(%{kind: kind} = update, ctx), do: do_apply(update, kind, ctx)
   def apply(update, ctx), do: do_apply(update, install_kind(), ctx)
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp do_apply(update, kind, ctx) do
     case kind do
       :manual ->

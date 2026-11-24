@@ -696,6 +696,7 @@ defmodule AscellaWeb.HomeLive do
 
   attr :file, :string, required: true
 
+  # sobelow_skip ["XSS.Raw"]
   defp mark(assigns) do
     assigns = assign(assigns, :mark, Logo.app_mark(assigns.file))
 

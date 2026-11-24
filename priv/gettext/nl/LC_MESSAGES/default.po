@@ -52,7 +52,7 @@ msgstr "Ascella werkt zichzelf bij. Deze pagina is over een minuut terug."
 msgid "Ascella runs as root and will not start apps as root. Set ASCELLA_RUN_AS to a user."
 msgstr "Ascella draait als root en start geen programma's als root. Zet ASCELLA_RUN_AS op een gebruiker."
 
-#: lib/ascella_web/components/layouts.ex:63
+#: lib/ascella_web/components/layouts.ex:64
 #, elixir-autogen, elixir-format
 msgid "Ascella stopped answering"
 msgstr "Ascella antwoordt niet meer"
@@ -107,7 +107,7 @@ msgstr "Gaat terug"
 msgid "Going back is not possible for this kind of install."
 msgstr "Teruggaan kan niet bij dit soort installatie."
 
-#: lib/ascella_web/components/layouts.ex:27
+#: lib/ascella_web/components/layouts.ex:28
 #: lib/ascella_web/controllers/help_controller.ex:5
 #: lib/ascella_web/controllers/help_html/show.html.heex:3
 #, elixir-autogen, elixir-format
@@ -189,7 +189,7 @@ msgstr "Geen enkele Programma's-map hier is beschrijfbaar."
 msgid "No build for this computer."
 msgstr "Geen versie voor deze computer."
 
-#: lib/ascella_web/components/layouts.ex:53
+#: lib/ascella_web/components/layouts.ex:54
 #, elixir-autogen, elixir-format
 msgid "No connection"
 msgstr "Geen verbinding"
@@ -331,8 +331,8 @@ msgstr "Deze pagina antwoordt alleen deze computer, nooit het netwerk van de zaa
 msgid "This release publishes no checksums, so nothing was installed."
 msgstr "Deze release publiceert geen checksums, dus er is niets geïnstalleerd."
 
-#: lib/ascella_web/components/layouts.ex:58
-#: lib/ascella_web/components/layouts.ex:68
+#: lib/ascella_web/components/layouts.ex:59
+#: lib/ascella_web/components/layouts.ex:69
 #, elixir-autogen, elixir-format
 msgid "Trying again"
 msgstr "Probeert opnieuw"

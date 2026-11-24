@@ -184,6 +184,7 @@ defmodule Ascella.Installer.Velopack do
 
   # Velopack writes current\sq.version (a nuspec) into every install; the
   # apps write VERSION into their release as well.
+  # sobelow_skip ["Traversal.FileModule"]
   defp version(root) do
     with {:ok, nuspec} <- File.read(Path.join([root, "current", "sq.version"])),
          [_, version] <- Regex.run(~r/<version>\s*([^<\s]+)\s*<\/version>/, nuspec) do

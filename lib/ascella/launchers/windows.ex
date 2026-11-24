@@ -35,6 +35,7 @@ defmodule Ascella.Launchers.Windows do
   def refreshable, do: [:start_menu, :desktop]
 
   @impl true
+  # sobelow_skip ["Traversal.FileModule"]
   def create(kind, app, target, ctx, existing) do
     path = Path.join(folder(kind, ctx), app.name <> ".lnk")
 

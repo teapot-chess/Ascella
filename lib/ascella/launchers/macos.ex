@@ -132,6 +132,7 @@ defmodule Ascella.Launchers.MacOS do
 
   # `defaults export` into a file of our own, `fun` edits it, and the file
   # goes whatever happens.
+  # sobelow_skip ["Traversal.FileModule"]
   defp with_export(ctx, fun) do
     file =
       Path.join(System.tmp_dir!(), "ascella-dock-#{System.unique_integer([:positive])}.plist")

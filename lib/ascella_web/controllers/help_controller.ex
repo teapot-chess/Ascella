@@ -13,6 +13,7 @@ defmodule AscellaWeb.HelpController do
   end
 
   @doc "The favicon, drawn from the mark (`AscellaWeb.Logo.favicon/0`)."
+  # sobelow_skip ["XSS.SendResp"]
   def favicon(conn, _params) do
     conn
     |> put_resp_content_type("image/svg+xml")

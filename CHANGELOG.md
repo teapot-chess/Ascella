@@ -19,6 +19,10 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+- [Change] **Sobelow skips now live next to the code they excuse.** The reviewed findings used to be line-number fingerprints in `.sobelow-skips`, which an innocent edit above a finding could unsuppress, usually on a Friday. Each one is now an inline `# sobelow_skip` comment above its function, the fingerprint file is gone, and the three `Config.*` checks Sobelow cannot take inline are ignored by name in `.sobelow-conf` with the reasoning written down. Same findings suppressed, nothing new hidden.
+- [Change] **`.gitattributes` knows the binary files and the Windows scripts.** Images, fonts, archives and databases are marked binary so line-ending normalisation leaves them be, and `.ps1` and `.cmd` files keep CRLF like the `.bat` files already did.
+- [Feature] **`mix i18n.check` reads the catalogues so a reviewer does not have to.** It fails on any `fuzzy` entry (a guess nobody looked at) and on a translation whose `%{placeholder}` names differ from the original, which is how a screen ends up saying `%{name}` to a person. It runs in `mix precommit` before the tests and as its own CI step. Both catalogues passed on the first try, which we are choosing to find suspicious.
+
 ## [0.5.0] - 2026-11-24
 
 - [Fix] **Symantec no longer kills what Ascella starts.** Ascella started every installed program through WMI (`Win32_Process.Create`), so that closing Ascella would not close OpenPairings in round five. A script asking a management service to create processes on its behalf is also the opening move of a good deal of ransomware, and Symantec, not given to nuance, said so: `SONAR.Ransom!gen88`, and Alnasl was dead on arrival. Programs are now started the ordinary way, by Ascella's own launcher (`Ascella.exe --start`), detached and asked out of the launcher's job, so they still outlive Ascella; Ascella's own `PORT` and friends still stay behind. Nothing is started through WMI any more.

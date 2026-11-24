@@ -206,6 +206,7 @@ defmodule Ascella.Installer.Portable do
 
   # The end of what the program wrote, or of what the launch itself said when
   # there is no log (the shell could not even open it).
+  # sobelow_skip ["Traversal.FileModule"]
   defp tail(log, said) do
     # Only a plain file: the log lies in a folder the run-as user owns, and a
     # symlink to /etc/shadow there is not something to read out loud as root.
@@ -274,6 +275,7 @@ defmodule Ascella.Installer.Portable do
   # The pid Ascella started, if that process is still the one it started: the
   # recorded start time has to be the process's own. A pid file that fails the
   # test is stale and is deleted.
+  # sobelow_skip ["Traversal.FileModule"]
   defp live_pid(app, ctx) do
     file = Path.join(base(app, ctx), "pid")
 
@@ -304,6 +306,7 @@ defmodule Ascella.Installer.Portable do
   # processes of the same pid will not share. nil when it cannot be read
   # (the process is gone, or the system does not say).
   @doc false
+  # sobelow_skip ["Traversal.FileModule"]
   def start_stamp(pid, %{family: :linux} = ctx) do
     with {:ok, stat} <- File.read(Path.join(ctx.root, "/proc/#{pid}/stat")),
          # The command name is in parentheses and may hold spaces and
@@ -326,6 +329,7 @@ defmodule Ascella.Installer.Portable do
 
   def start_stamp(_pid, _ctx), do: nil
 
+  # sobelow_skip ["Traversal.FileModule"]
   defp word(path) do
     with {:ok, text} <- File.read(path),
          word = String.trim(text),

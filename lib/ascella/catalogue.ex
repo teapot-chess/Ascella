@@ -102,6 +102,7 @@ defmodule Ascella.Catalogue do
   end
 
   @doc "Reads and checks a catalogue file. Raises with a sentence when it is wrong."
+  # sobelow_skip ["Traversal.FileModule"]
   def load!(path) do
     path
     |> File.read!()
@@ -213,6 +214,7 @@ defmodule Ascella.Catalogue do
     }
   end
 
+  # sobelow_skip ["DOS.StringToAtom"]
   defp platform!(id, target, %{"method" => method} = spec) do
     unless target in Platform.targets(), do: fail!("#{id}: unknown target #{inspect(target)}")
 
@@ -256,6 +258,7 @@ defmodule Ascella.Catalogue do
     end
   end
 
+  # sobelow_skip ["DOS.StringToAtom"]
   defp family!(_id, family) when family in ~w(windows macos linux), do: String.to_atom(family)
   defp family!(id, family), do: fail!("#{id}: data for an unknown system #{inspect(family)}")
 

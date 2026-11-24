@@ -113,6 +113,7 @@ defmodule Ascella.Runner.System do
     end
   end
 
+  # sobelow_skip ["CI.System"]
   defp run(program, args) do
     case System.find_executable(program) do
       nil -> :ok
