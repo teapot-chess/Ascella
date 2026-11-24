@@ -19,6 +19,10 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-24
+
+- [Fix] **Symantec no longer kills what Ascella starts.** Ascella started every installed program through WMI (`Win32_Process.Create`), so that closing Ascella would not close OpenPairings in round five. A script asking a management service to create processes on its behalf is also the opening move of a good deal of ransomware, and Symantec, not given to nuance, said so: `SONAR.Ransom!gen88`, and Alnasl was dead on arrival. Programs are now started the ordinary way, by Ascella's own launcher (`Ascella.exe --start`), detached and asked out of the launcher's job, so they still outlive Ascella; Ascella's own `PORT` and friends still stay behind. Nothing is started through WMI any more.
+- [Security] **Phoenix 1.8.17, LiveView 1.2.15, Plug 1.20.4.** Past this week's advisories (a Presence key, a serializer, a skipped `on_mount`, multipart framing). Ascella uses none of those in anger, which is not the same as not using them.
 - [Fix] **OpenPairings can be installed again.** Its code went private, and its releases with it, so the catalogue was pointing Ascella at a door that no longer opens for strangers. The catalogue now points at `teapot-chess/openpairings-releases`, the public repository that holds nothing but the downloads, with the same file names.
 - [Security] **The Linux service no longer opens its data folder to every account.** To let the user the programs run as reach them, Ascella used to `chmod o+x` `/var/lib/ascella` and `/var/lib/ascella/programs`. The programs now live in `/var/lib/ascella-programs` (`ASCELLA_PROGRAMS`), the update moves an existing `programs` folder there and takes the `o+x` off the data folder again.
 - [Fix] **The Setup page's tab survives Ascella's own update.** The key was new at every start, so the open page reconnected, lost its cookie and landed on a plain 403 that told it to run a shell command. The key is now the same for the whole boot (`RuntimeDirectoryPreserve=yes`; a reboot makes a new one). The two 403 pages are in Dutch for a Dutch browser.

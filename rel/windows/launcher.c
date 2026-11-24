@@ -58,6 +58,17 @@
  * for it. Those are not a reason to start a server. The uninstall hook
  * removes the "start with Windows" value this program may have written
  * (`Ascella.Autostart`) and nothing else: no file, and never the data.
+ *
+ * ## Starting the other programs
+ *
+ * `Ascella.exe --start <program> [args...]` starts the program and leaves at
+ * once: an ordinary CreateProcess, asked to break away from the job below,
+ * so that closing Ascella does not close OpenPairings in round five. The
+ * server runs it (`Ascella.Installer.start_detached/3`) as ASCELLA_LAUNCHER,
+ * which start_server exports. Until 0.5.0 the server asked WMI
+ * (Win32_Process.Create) instead, and Symantec, reasonably enough for a
+ * script asking a management service for processes, called it ransomware
+ * (SONAR.Ransom!gen88) and killed what it started.
  */
 
 #define UNICODE
@@ -289,6 +300,124 @@ static void resolve_root(void)
     g_root[n] = 0;
 }
 
+/* --- --start ----------------------------------------------------------------
+ * One argument of a command line, quoted the way CommandLineToArgvW and the
+ * C runtime read it back: backslashes are literal except before a quote,
+ * where they are doubled, and the quote itself escaped. */
+#define BACKSLASH L'\\'
+
+static BOOL append_arg(WCHAR *out, int size, int *n, const WCHAR *arg)
+{
+    int slashes, i;
+
+#define PUT(c)                   \
+    do {                         \
+        if (*n >= size - 1)      \
+            return FALSE;        \
+        out[(*n)++] = (c);       \
+    } while (0)
+
+    if (*n > 0)
+        PUT(L' ');
+    PUT(L'"');
+    for (i = 0;; i++) {
+        slashes = 0;
+        while (arg[i] == BACKSLASH) {
+            slashes++;
+            i++;
+        }
+        if (arg[i] == 0) {
+            /* Before the closing quote: every backslash doubled. */
+            while (slashes-- > 0) {
+                PUT(BACKSLASH);
+                PUT(BACKSLASH);
+            }
+            break;
+        }
+        if (arg[i] == L'"') {
+            while (slashes-- > 0) {
+                PUT(BACKSLASH);
+                PUT(BACKSLASH);
+            }
+            PUT(BACKSLASH);
+            PUT(L'"');
+        } else {
+            while (slashes-- > 0)
+                PUT(BACKSLASH);
+            PUT(arg[i]);
+        }
+    }
+    PUT(L'"');
+    out[*n] = 0;
+    return TRUE;
+#undef PUT
+}
+
+/* `--start <program> [args...]`: see "Starting the other programs" at the
+ * top. Returns the exit code: 0 when the program was started, else the
+ * Windows error. Never a window: the server is asking, not a person. */
+static int start_program(void)
+{
+    static WCHAR cmdline[32768];
+    WCHAR dir[MAXP];
+    int argc = 0, i, n = 0, at = -1;
+    LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    STARTUPINFOW si;
+    PROCESS_INFORMATION pi;
+    DWORD flags = CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS | CREATE_UNICODE_ENVIRONMENT;
+    DWORD error = 0;
+    BOOL ok;
+
+    if (!argv)
+        return (int)GetLastError();
+
+    for (i = 1; i < argc; i++)
+        if (lstrcmpiW(argv[i], L"--start") == 0) {
+            at = i + 1;
+            break;
+        }
+
+    if (at < 1 || at >= argc || lstrlenW(argv[at]) >= MAXP) {
+        LocalFree(argv);
+        return (int)ERROR_BAD_ARGUMENTS;
+    }
+
+    for (i = at; i < argc; i++)
+        if (!append_arg(cmdline, sizeof cmdline / sizeof cmdline[0], &n, argv[i])) {
+            LocalFree(argv);
+            return (int)ERROR_FILENAME_EXCED_RANGE;
+        }
+
+    /* The program's own folder is its working folder, as a shortcut has it. */
+    lstrcpynW(dir, argv[at], MAXP);
+    for (i = lstrlenW(dir); i > 0 && dir[i - 1] != BACKSLASH && dir[i - 1] != L'/'; i--)
+        ;
+    dir[i > 0 ? i - 1 : 0] = 0;
+
+    ZeroMemory(&si, sizeof si);
+    si.cb = sizeof si;
+
+    ok = CreateProcessW(argv[at], cmdline, NULL, NULL, FALSE, flags | CREATE_BREAKAWAY_FROM_JOB,
+                        NULL, dir[0] ? dir : NULL, &si, &pi);
+    /* A job of somebody else's that does not let go (Ascella itself started
+     * inside one): started all the same, and it goes when that job goes. */
+    if (!ok && GetLastError() == ERROR_ACCESS_DENIED)
+        ok = CreateProcessW(argv[at], cmdline, NULL, NULL, FALSE, flags, NULL,
+                            dir[0] ? dir : NULL, &si, &pi);
+
+    if (ok) {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    } else {
+        error = GetLastError();
+        if (error == 0)
+            error = ERROR_GEN_FAILURE;
+    }
+
+    LocalFree(argv);
+    return (int)error;
+}
+
 /* "Ascella 0.2.0" for the title bar, from the release on disk
  * (`releases\start_erl.data` is "<erts> <release version>"), so the window
  * says which version it is also when the server never answers. */
@@ -509,6 +638,13 @@ static void start_server(void)
      * WinMain, so a restart after a failed update keeps it. */
     if (g_token[0])
         SetEnvironmentVariableW(L"ASCELLA_LAUNCHER_TOKEN", g_token);
+    /* This file, for `--start`: how the server starts the other programs. */
+    {
+        WCHAR self[MAXP];
+        DWORD len = GetModuleFileNameW(NULL, self, MAXP);
+        if (len > 0 && len < MAXP)
+            SetEnvironmentVariableW(L"ASCELLA_LAUNCHER", self);
+    }
     /* Whether "Download and install" can work here - `Ascella.Updates`
      * checks the layout again for itself. */
     SetEnvironmentVariableW(L"ASCELLA_UPDATER", can_update() ? L"velopack" : NULL);
@@ -541,7 +677,8 @@ static void start_server(void)
             ZeroMemory(&limits, sizeof limits);
             /* BREAKAWAY_OK: the apps Ascella starts must outlive it, so a
              * process that asks to leave the job (CREATE_BREAKAWAY_FROM_JOB)
-             * may. Nothing leaves without asking; not SILENT_BREAKAWAY, which
+             * may - and `Ascella.exe --start`, which the server runs for
+             * every app, asks. Nothing leaves without asking; not SILENT_BREAKAWAY, which
              * would let erl.exe walk out of cmd.exe's job on its own. */
             limits.BasicLimitInformation.LimitFlags =
                 JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
@@ -1678,6 +1815,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
             RegDeleteKeyValueW(HKEY_CURRENT_USER, RUN_KEY, RUN_VALUE);
         return 0;
     }
+
+    /* The server starting another program: start it and leave. */
+    if (has_arg(L"--start", TRUE))
+        return start_program();
 
     g_dutch = PRIMARYLANGID(GetUserDefaultUILanguage()) == LANG_DUTCH;
     g_background = has_arg(L"--background", TRUE);

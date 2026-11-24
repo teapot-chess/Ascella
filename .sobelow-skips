@@ -30,7 +30,7 @@ Traversal.FileModule: Directory Traversal in `File.open`,lib/ascella/launcher_de
 Traversal.FileModule: Directory Traversal in `File.read!`,lib/ascella/catalogue.ex:107,63EDD51
 Traversal.FileModule: Directory Traversal in `File.read!`,lib/ascella/fetch.ex:248,14CD560
 Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/access.ex:74,2628039
-Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/installer.ex:254,60E5375
+Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/installer.ex:303,5B7C88B
 Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/installer/mac_app.ex:208,257CF22
 Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/installer/portable.ex:214,49BF9C0
 Traversal.FileModule: Directory Traversal in `File.read`,lib/ascella/installer/portable.ex:277,2DDB5B6

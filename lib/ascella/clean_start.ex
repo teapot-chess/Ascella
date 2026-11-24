@@ -25,18 +25,17 @@ defmodule Ascella.CleanStart do
   does.
 
   Not covered, deliberately and checked: systemd starts a unit with its own
-  environment (the unit file's `Environment=` lines), and WMI's
-  `Win32_Process.Create` (`Ascella.Installer.start_detached/3`) creates the
-  process under the WMI service, whose environment is not Ascella's. Both are
-  clean already and are left alone.
+  environment (the unit file's `Environment=` lines), which is clean already
+  and is left alone.
 
-  One more place needs a program run *and waited for* in a clean environment:
-  a Windows `Setup.exe --silent`, whose answer Ascella wants, and which may
-  start the app it has just installed. WMI does not wait, so there the
-  environment is cleaned the other way round, with a deny-list because Windows
+  Windows is cleaned the other way round, with a deny-list because Windows
   programs need most of what is set (`unset/1`): the variables of Ascella's
   own release, which are exactly the ones that make a sister program believe
-  it is already running.
+  it is already running. That goes for a `Setup.exe --silent`, whose answer
+  Ascella waits for and which may start the app it has just installed, and
+  for every start (`Ascella.Installer.start_detached/3`, through the
+  launcher's `--start`, which hands the program the environment it was
+  given).
   """
 
   @always ~w(HOME USER LOGNAME LANG)
