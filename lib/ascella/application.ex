@@ -9,6 +9,8 @@ defmodule Ascella.Application do
   def start(_type, _args) do
     # The Linux service's key, before the endpoint can answer anybody.
     Ascella.Access.start()
+    # The Linux service's programs, where an older version left them.
+    Ascella.Paths.adopt_old_programs()
 
     children = [
       AscellaWeb.Telemetry,

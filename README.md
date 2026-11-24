@@ -144,14 +144,16 @@ sh /opt/ascella/current/ascella.sh open --print   # prints http://localhost:4090
 The page takes the key, remembers the browser with a signed cookie and sends
 it on to the page without the key in the address. A request with neither
 gets a 403 that says so. Through an SSH tunnel: run `open --print` on the box
-and paste the link into the browser of the machine you came from. A restart
-makes a new key, so every browser comes in again by the link. Windows, macOS
+and paste the link into the browser of the machine you came from. The key
+is the same for the whole boot (a restart of the service, its own update
+included, keeps it); a reboot makes a new one, and every browser comes in
+again by the link. Windows, macOS
 and a Linux start in a terminal have no key and nothing changes there.
 
 Portable programs started by the root service (OpenPairings on Linux) run as
 `ASCELLA_RUN_AS`: before each start Ascella gives that user a way to walk to
-the program (the "execute" bit of the data folder, which is otherwise
-`0750 root`) and a log folder of its own, `programs/<id>/logs`. A program that
+the program (it lives in `/var/lib/ascella-programs`, `ASCELLA_PROGRAMS`, so the
+data folder stays `0750 root`) and a log folder of its own, `<id>/logs` in there. A program that
 is already gone a second after it started is a failed start and the tile shows
 the end of its log. Ascella's `pid` file records when the process started
 beside its number (`/proc/<pid>/stat` on Linux, `ps -o lstart` on macOS), and

@@ -217,6 +217,12 @@ main() {
     # The programs Ascella starts live beside the data, not inside it, so that
     # the user they run as can walk to them without the data folder having to
     # be opened to every account. Older installs kept them in $DATA_DIR/programs.
+    # An empty $PROGRAMS_DIR is no reason to leave them there: a box updated by
+    # an older update.sh got the new unit without the move, and the program's
+    # first start made the folder (Ascella moves them itself at start too).
+    if [ -d "$DATA_DIR/programs" ] && [ -d "$PROGRAMS_DIR" ] && [ ! -L "$PROGRAMS_DIR" ]; then
+        rmdir "$PROGRAMS_DIR" 2>/dev/null || true
+    fi
     if [ -d "$DATA_DIR/programs" ] && [ ! -e "$PROGRAMS_DIR" ]; then
         mv -T "$DATA_DIR/programs" "$PROGRAMS_DIR"
     fi

@@ -249,8 +249,21 @@ defmodule Ascella.Installer do
   """
   def start_detached(ctx, program, args \\ []) do
     {exe, argv, opts} = start_command(ctx, program, args)
-    run(ctx, exe, argv, opts)
+
+    case run(ctx, exe, argv, opts) do
+      # The launcher says nothing and answers with the Windows error code:
+      # "Ascella.exe stopped with code 5" named the wrong program and no cause.
+      {:error, {:exit, _launcher, status, _said}} when exe == ctx.starter ->
+        {:error, {:not_started, windows_name(program), status}}
+
+      other ->
+        other
+    end
   end
+
+  # The file name of a Windows path, wherever this runs (`Path.basename/1`
+  # knows backslashes on Windows only).
+  defp windows_name(program), do: program |> String.split(["\\", "/"]) |> List.last()
 
   @doc """
   `{program, args, opts}` that `start_detached/3` runs, for `run/4`. The
