@@ -47,6 +47,7 @@ defmodule Ascella.FakeMachine do
       desktop: Path.join(tmp, "home/Desktop"),
       applications: Path.join(tmp, "home/.local/share/applications"),
       launchers: Path.join(tmp, "ascella/launchers"),
+      starter: if(family == :windows, do: Path.join(tmp, "AscellaApp/current/Ascella.exe")),
       gsettings: true,
       root: Path.join(tmp, "root"),
       sudo: true,
@@ -75,6 +76,12 @@ defmodule Ascella.FakeMachine do
     end)
 
     agent
+  end
+
+  defp started(first) do
+    if Path.basename(first) == "Update.exe",
+      do: first |> Path.dirname() |> Path.basename() |> String.replace_suffix("App", ".exe"),
+      else: Path.basename(first)
   end
 
   def running?(agent, what), do: Agent.get(agent, &MapSet.member?(&1.running, what))
@@ -208,15 +215,14 @@ defmodule Ascella.FakeMachine do
     script =
       encoded |> Base.decode64!() |> :unicode.characters_to_binary({:utf16, :little}, :utf8)
 
-    [_, line] = Regex.run(~r/CommandLine = '(.*)' \}/, script)
-    [first | _] = Regex.run(~r/"([^"]+)"/, line, capture: :all_but_first)
+    [_, first] = Regex.run(~r/Start-Process -FilePath '([^']+)'/, script)
+    up(agent, started(first))
+    {"", 0}
+  end
 
-    exe =
-      if Path.basename(first) == "Update.exe",
-        do: first |> Path.dirname() |> Path.basename() |> String.replace_suffix("App", ".exe"),
-        else: Path.basename(first)
-
-    up(agent, exe)
+  # The launcher's `--start`: how Ascella starts a program on Windows.
+  defp handle(agent, _ctx, "Ascella.exe", _program, ["--start", first | _args], _opts) do
+    up(agent, started(first))
     {"", 0}
   end
 

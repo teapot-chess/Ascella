@@ -34,10 +34,12 @@ how tournaments get damaged.
 | **Linux / Pi** | the program's own `install.sh`, then its own `update.sh --from <verified folder>`; its own systemd unit runs it | `systemctl stop` | the program's previous release from `/opt/<id>/releases` |
 | **portable** (OpenPairings on Linux) | versions side by side in Ascella's folder, `current` switched by a rename | `SIGTERM` (Windows: `taskkill` without `/F`) | the previous version is still there |
 
-On Windows, programs are started through WMI, not as Ascella's children:
-Ascella's launcher holds what it starts in a job object that dies with it,
-and OpenPairings closing in round five because someone closed Ascella would
-be a poor advertisement.
+On Windows, programs are started by Ascella's launcher (`Ascella.exe --start`),
+an ordinary process start that asks to leave the launcher's job: the launcher
+holds what it starts in a job object that dies with it, and OpenPairings
+closing in round five because someone closed Ascella would be a poor
+advertisement. Until 0.5.0 they were started through WMI, which Symantec
+reads as ransomware.
 
 On Linux and macOS a program is started from an empty environment (`env -i`,
 with only what Finder or a desktop session would give it: home, user, locale,

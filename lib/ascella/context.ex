@@ -29,6 +29,10 @@ defmodule Ascella.Context do
     * `stop_timeout_ms`, `poll_ms` - how long a polite stop is waited for
     * `start_check_ms` - how long after starting a portable program it is
       looked at again; one that is already gone was not started
+    * `starter` - Windows: Ascella's own launcher (`Ascella.exe`, from
+      `ASCELLA_LAUNCHER`), whose `--start` starts a program outside the
+      launcher's job (`Ascella.Installer.start_detached/3`); `nil` when
+      Ascella runs without it
   """
 
   alias Ascella.{Paths, Platform}
@@ -47,6 +51,7 @@ defmodule Ascella.Context do
     :desktop,
     :applications,
     :launchers,
+    :starter,
     gsettings: false,
     service?: false,
     mac_apps: [],
@@ -88,6 +93,7 @@ defmodule Ascella.Context do
       desktop: desktop(home),
       applications: applications(home),
       launchers: Path.join(Paths.data(), "launchers"),
+      starter: starter(family),
       gsettings: family == :linux and System.find_executable("gsettings") != nil,
       # The Linux systemd service (its unit sets the key file): its HOME is its
       # own data folder, which nobody's menu or desktop looks into.
@@ -96,6 +102,15 @@ defmodule Ascella.Context do
       github: Application.get_env(:ascella, :github_req_options, [])
     }
   end
+
+  defp starter(:windows) do
+    case System.get_env("ASCELLA_LAUNCHER") do
+      path when path not in [nil, ""] -> path
+      _unset -> nil
+    end
+  end
+
+  defp starter(_family), do: nil
 
   # /Applications first, where people look; ~/Applications when that is not
   # writable for this user. ASCELLA_APPS_DIR overrides both.

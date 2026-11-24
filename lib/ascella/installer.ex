@@ -18,7 +18,7 @@ defmodule Ascella.Installer do
   one tried.
   """
 
-  alias Ascella.{Catalogue, Context, Fetch, Runner}
+  alias Ascella.{Catalogue, CleanStart, Context, Fetch, Runner}
 
   @type status :: %{
           state: :absent | :installed | :per_machine,
@@ -233,20 +233,69 @@ defmodule Ascella.Installer do
   Starts a Windows program outside Ascella's own process tree. Ascella's
   launcher holds everything it starts in a job object that dies with it -
   which is right for Ascella's own server, and wrong for OpenPairings in the
-  middle of round five. So the program is created by WMI
-  (`Win32_Process.Create`), whose process belongs to no job of ours, and
-  Ascella closing takes nothing with it.
+  middle of round five. So the launcher itself starts it
+  (`Ascella.exe --start program args`): an ordinary `CreateProcess`, asked
+  to break away from the job, the program's folder as its working folder,
+  and Ascella closing takes nothing with it.
+
+  Until 0.5.0 this went through WMI (`Win32_Process.Create`), which
+  Symantec reads as ransomware (SONAR.Ransom!gen88) and kills whatever it
+  started. A management service creating processes for a script host is
+  what malware does; a program starting a program is what programs do.
+
+  Without the launcher (`ctx.starter` is nil: a development run) there is
+  no job to leave either, and PowerShell's `Start-Process` does it.
   """
   def start_detached(ctx, program, args \\ []) do
-    command_line = Enum.map_join([program | args], " ", &~s("#{&1}"))
-    literal = "'" <> String.replace(command_line, "'", "''") <> "'"
+    {exe, argv, opts} = start_command(ctx, program, args)
+    run(ctx, exe, argv, opts)
+  end
+
+  @doc """
+  `{program, args, opts}` that `start_detached/3` runs, for `run/4`. The
+  environment is Ascella's minus its own release's variables
+  (`Ascella.CleanStart.unset/1`): the program must not inherit Ascella's
+  `PORT`. `env` is the environment to clean, for the tests.
+  """
+  def start_command(ctx, program, args, env \\ System.get_env())
+
+  def start_command(%Context{starter: starter}, program, args, env)
+      when is_binary(starter) and starter != "" do
+    {starter, ["--start", program | args], env: CleanStart.unset(env)}
+  end
+
+  def start_command(_ctx, program, args, env) do
+    quote = fn text -> "'" <> String.replace(text, "'", "''") <> "'" end
+
+    arguments =
+      if args == [],
+        do: "",
+        else: " -ArgumentList " <> Enum.map_join(args, ",", &quote.(~s("#{&1}")))
 
     script =
-      "$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create " <>
-        "-Arguments @{ CommandLine = #{literal} }; exit $r.ReturnValue"
+      "Start-Process -FilePath #{quote.(program)}#{arguments}" <>
+        " -WorkingDirectory #{quote.(folder(program))}"
 
     encoded = script |> :unicode.characters_to_binary(:utf8, {:utf16, :little}) |> Base.encode64()
-    run(ctx, "powershell", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded])
+
+    {"powershell", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
+     env: CleanStart.unset(env)}
+  end
+
+  # The folder of a Windows path, its own separators kept (`Path.dirname/1`
+  # knows backslashes on Windows only).
+  defp folder(program) do
+    case program |> String.split(["\\", "/"]) |> Enum.drop(-1) do
+      [] ->
+        "."
+
+      parts ->
+        binary_part(
+          program,
+          0,
+          (parts |> Enum.map(&byte_size/1) |> Enum.sum()) + length(parts) - 1
+        )
+    end
   end
 
   @doc "Reads a VERSION file (one line, a version)."
