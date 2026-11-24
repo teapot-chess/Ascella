@@ -70,7 +70,17 @@ if [ "${1:-}" = open ]; then
     } >"$page"
     umask "$old_umask"
     (sleep 60; rm -rf "$dir") >/dev/null 2>&1 &
-    xdg-open "$page" >/dev/null 2>&1 || { rm -rf "$dir"; echo "$base/?k=$key"; }
+    # A browser in a snap or a flatpak (Firefox on Ubuntu) cannot read that
+    # folder and shows "file not found", while xdg-open reports success; so
+    # the way out is said either way.
+    if xdg-open "$page" >/dev/null 2>&1; then
+      echo "Opening Ascella in your browser. If it shows no page, open the link that"
+      echo "  sh $here/ascella.sh open --print"
+      echo "prints instead."
+    else
+      rm -rf "$dir"
+      echo "$base/?k=$key"
+    fi
   fi
   exit 0
 fi

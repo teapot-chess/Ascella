@@ -187,6 +187,20 @@ defmodule AscellaWeb.Words do
       else: base <> " " <> gettext("What it said: %{tail}", tail: said)
   end
 
+  def reason({:not_started, program, 5}),
+    do:
+      gettext(
+        "Windows refused to start %{program} (access denied). An antivirus program may have blocked it.",
+        program: program
+      )
+
+  def reason({:not_started, program, code}),
+    do:
+      gettext("Windows could not start %{program} (error %{code}).",
+        program: program,
+        code: code
+      )
+
   def reason(:no_start), do: gettext("The download has no start file for this program.")
 
   def reason(:no_install_script),
