@@ -27,11 +27,6 @@ defmodule Ascella.Platform do
   def family({:unix, :darwin}), do: :macos
   def family({:unix, _}), do: :linux
 
-  @doc "The family a target belongs to."
-  def family_of("windows-" <> _), do: :windows
-  def family_of("macos-" <> _), do: :macos
-  def family_of("linux-" <> _), do: :linux
-
   @doc """
   `x86_64` or `aarch64`, as release assets spell it: the machine's, not the
   program's. An x86_64 Ascella under Rosetta on an Apple Silicon Mac is on
