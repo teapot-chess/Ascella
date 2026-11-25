@@ -19,6 +19,8 @@ See [docs/releasing.md](docs/releasing.md).
 
 ## [Unreleased]
 
+- [Removed] **Four things nobody called.** A raising twin of the data-directory guard (and its exception), a lookup of a target's system by its name, a form-error helper and a LiveComponent entry point, all left over from scaffolding or ambitions. The sweep found nothing slow.
+
 ## [0.5.1] - 2026-11-24
 
 - [Fix] **A Linux box updated from its Setup page finds its programs again.** 0.5.0 moved the programs out of `/var/lib/ascella` into `/var/lib/ascella-programs`, and wrote the move into `update.sh`. The `update.sh` that runs an update, though, is the one already installed, which had never heard of it: it put in the new service, which looked in the new folder, found nothing, and made an empty one, which the next `update.sh` then took for a folder in use. OpenPairings showed as not installed while it sat one directory over. Ascella now moves them itself when it starts (an empty new folder is no obstacle; a full one is left alone and logged), takes the old "everyone may pass" bit off the data folder, and `update.sh` no longer mistakes an empty folder for an occupied one.

@@ -61,17 +61,6 @@ defmodule Ascella.Guard do
     end
   end
 
-  @doc "As `check/3`, raising. For the places where a refusal is a bug, not a situation."
-  def check!(path, ctx, apps \\ Catalogue.apps()) do
-    case check(path, ctx, apps) do
-      :ok ->
-        :ok
-
-      {:error, {:data_dir, id, dir}} ->
-        raise Ascella.Guard.Refused, path: path, app: id, dir: dir
-    end
-  end
-
   defp overlaps?(_a, []), do: false
   defp overlaps?(a, b), do: List.starts_with?(a, b) or List.starts_with?(b, a)
 
